@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>Matrizes</title>
+
+<script>
+
+var howMany = 0;
+var matrices = [];
+
+function buildContainers(){
+
+	var howManyElement = document.getElementById("quantas-matrizes");
+        howMany = howManyElement.value;
+	var mainContainer = document.getElementById("conteudo");
+	var matricesContainersStr = "";
+	var counter = 0;
+	
+	while(counter < howMany){
+		
+		matricesContainersStr += "<div id='mat-" + counter + "-cont'>"
+					+"<input type='text' id='mat-" + counter + "-dimensions' onchange='setMatrixDimensions(this, " + counter + ")'>"
+					+"<div id='mat-" + counter + "'>"
+					+"</div>";
+
+		if (counter != howMany-1)
+			matricesContainersStr += "<select id='operation" + counter + "'>"
+						+"<option value='sum'>&#43;</option>"
+						+"<option value='subtract'>&minus;</option>"
+						+"<option value='multiply'>&times;</option>"
+						+"</select>";
+			
+		counter++;
+		
+	}
+
+	mainContainer.innerHTML = matricesContainersStr;
+
+}
+
+function setMatrixDimensions(dimensionsElement, matrIndex){
+
+	var x = dimensionsElement.value.split(',')[0];
+	var y = dimensionsElement.value.split(',')[1];
+	var i = 0;
+	var j = 0;
+	var matrixStr = "";
+
+	for(;i < x;i++)
+		for(j = 0;j < y;j++){
+			matrixStr += "<input type='text' maxlength='4' size='4' id='mat-" + matrIndex + "-" + i + "-" + j + "'>";
+			if (j == y-1) matrixStr += "</br>";
+		}
+
+	document.getElementById("mat-"+matrIndex).innerHTML = matrixStr;
+
+}
+
+function domToArray(){
+
+	var counter = 0;
+        var matrice = [];
+	
+	while(counter < howMany){
+		matrice = [];
+		var x = document.getElementById("mat-" + counter + "-dimensions").value.split(',')[0];
+		var y = document.getElementById("mat-" + counter + "-dimensions").value.split(',')[1];
+		var i = 0;
+		var j;
+		for(;i<x;i++){
+			matrice[i] = [];
+			for(j = 0;j < y;j++)
+				matrice[i][j] = eval(document.getElementById( "mat-" + counter + "-" + i + "-" + j ).value);
+		}
+		counter++;
+
+		matrices.push(matrice);
+	}
+	
+}
+
+function sum(A, B){
+
+	var x = A.length;
+	var y = A[0].length;
+	var i = 0;
+	var j = 0;
+	var res = [];
+
+	for(;i < x;i++){
+		res[i] = [];
+		for(j = 0;j < y;j++)
+			res[i][j] = A[i][j] + B[i][j];
+	}
+	
+	return res;
+
+}
+
+function subtract(A, B){
+
+	var x = A.length;
+	var y = A[0].length;
+	var i = 0;
+	var j = 0;
+	var res = [];
+
+	for(;i < x;i++){
+		res[i] = [];
+		for(j = 0;j < y;j++){
+			res[i][j] = A[i][j] - B[i][j];			
+		}
+
+	}
+	
+	return res;
+
+}
+
+function multiply(A, B){
+
+	var x = A.length;
+	var y = B[0].length;
+	var i = 0;
+	var line = 0;
+	var column = 0;
+	var resPart = 0;
+	var res = [];
+
+	while(line < x){
+		res[line] = [];
+		resPart = 0;
+		while(column < y){
+			for(i = 0;i < x;i++){
+				if(A[line][i] == 0 || B[i][column] == 0){
+					resPart = 0;
+					break;
+				}
+				resPart += A[line][i] * B[i][column];
+
+			}
+			res[line][column++] = resPart;
+		}
+		column = 0;
+		line++;
+	}
+	
+	return res;
+
+}
+
+/*
+function transpose(A){
+	var res = [];
+	
+	return res;
+
+function invert(A){
+	var res = [];
+	
+	return res;
+}
+
+function scale(A){
+	var res = [];
+	
+	return res;
+}
+
+function determine(A){
+	return 0;
+}
+*/
+
+
+function calcResult(){
+
+	matrices = [];
+	domToArray();
+
+	console.log(JSON.stringify(matrices));
+
+	var counter = 0;
+	var operation = "";
+	var res = matrices[0];
+
+	while(counter < howMany - 1){
+		switch(document.getElementById("operation" + counter).value){
+			case "sum": res = sum(res,matrices[counter+1]); break;
+			case "subtract": res = subtract(res,matrices[counter+1]); break;
+			case "multiply": res = multiply(res,matrices[counter+1]); break;
+		}
+		counter++;
+	}
+
+	showResult();
+
+}
+
+function showResult(){
+	console.log(JSON.stringify(res));
+}
+
+
+</script>
+
+</head>
+
+<body>
+
+<div id="principal">
+
+<div id="menu">
+
+Quantas matrizes voce deseja?
+
+<input type="text" id="quantas-matrizes" >
+
+<button onclick="buildContainers()">Ok</button>
+
+</div>
+
+<div id="conteudo">
+
+</div>
+
+</div>
+
+</body>
+
+</html>
