@@ -15,7 +15,7 @@ function buildContainers(){
 	clearResult();
 
 	howMany = parseInt(document.getElementById("quantas-matrizes").value);
-	var mainContainer = document.getElementById("matrizes-originais");
+	var mainContainer = document.getElementById("matrizes");
 	var matrixesContainersStr = "";
 	var counter = 0;
 	
@@ -421,7 +421,7 @@ function reducedRowEchelonForm(A){
 				if(isReducedRowEchelonForm(res))
 					return res;
 
-				if(res[h][zeros[i]])
+				if(res[h][zeros[i]] && zeros[i] != x)
 					res = elementaryOperations(res, h, zeros[i], false);
 			}
 
@@ -515,7 +515,7 @@ function elementaryOperations(A, i, j, ref){
 		expr = "";
 		
 		GCFRes = GCF(res[i][j], res[iNonZero][j]);
-		LCMRes = LCM(res[i][j], res[iNonZero][j]);
+		LCMRes = Math.abs(res[i][j] * res[iNonZero][j]) / GCFRes;
 		resijinozeroj = Math.abs(res[i][j]/res[iNonZero][j]);
 
 		if(res[i][j] + res[iNonZero][j] === 0)
@@ -589,13 +589,11 @@ function quickSwitchLines(items, items2, left, right) {
 
         index = partition2(items, items2, left, right);
 
-        if (left < index - 1) {
+        if (left < index - 1) 
             quickSwitchLines(items, items2, left, index - 1);
-        }
 
-        if (index < right) {
+        if (index < right)
             quickSwitchLines(items, items2, index, right);
-        }
 
     }
 
@@ -620,6 +618,8 @@ function partition2(items, items2, left, right) {
 		if (i <= j) {
 			swap(items, i, j);
 			swap(items2, i, j);
+			applyToResult("Troca de linhas " + (i + 1) + " por " + (j + 1) + "</br></br>"
+					+ "Resultado: </br>" + toTable(items2) + "</br></br>");
 			i++;
 			j--;
 		}
@@ -650,6 +650,11 @@ function applyExpressionToRow(res, i, iNonZero, expr){
 			res[i][j] = isNaN(ev) ? res[i][j] : ev;
 		}
 
+
+	applyToResult("~ L" + (i + 1) + " = "
+			+ expr.replace("res[i][j]", "L" + (i + 1)).replace("res[iNonZero][j]", "L" + (iNonZero + 1)) + "</br></br>"
+			+ "Resultado: </br>" + toTable(res) + "</br></br>");
+
 	return res;
 
 }
@@ -675,7 +680,7 @@ function findNonZero(A, i, j, up){
 		for(--i;i >= 0;i--){
 			if (A[i][j] != 0){
 				nonZero = i;
-				break
+				break;
 			}
 		}
 				
@@ -683,10 +688,11 @@ function findNonZero(A, i, j, up){
 		for(++i;i < x;i++){
 			if (A[i][j] != 0){
 				nonZero = i;
-				break
+				break;
 			}
 		}
 	}
+
 	return nonZero;
 
 }
@@ -702,22 +708,22 @@ function switchLines(A, i, j, up){
 	if(up){
 		for(h = i - 1;h >= 0;h--){
 			if(A[h][j] != 0 && A[i][h] != 0){
-				auxArr = A[h];
-				A[h] = A[i];
-				A[i] = auxArr;
+				swap(A, h, i);
 				break;
 			}
 		}				
 	}else{
 		for(h = i + 1;h < x;h++){
 			if(A[h][j] != 0 && A[i][h] != 0){
-				auxArr = A[h];
-				A[h] = A[i];
-				A[i] = auxArr;
+				swap(A, h, i);
 				break;
 			}
 		}
 	}
+
+	if(h != -1 && h != x)
+		applyToResult("Troca de linhas " + (i + 1) + " por " + (h + 1) + "</br></br>"
+					+ "Resultado: </br>" + toTable(A) + "</br></br>");
 	
 	return A;
 
@@ -737,6 +743,8 @@ function LCM(a, b){
 }
 
 function calcResult(){
+
+	clearResult();
 
 	var counter = 0;
 	var operation = "";
@@ -764,6 +772,7 @@ function calcResult(){
 					matrixes[counter] = power(matrixes[counter], toThePower);
 					break;
 				case "gaussJordanElimination": matrixes[counter] = gaussJordanElimination(matrixes[counter]);
+					applyToResult("Resultado final: </br>");
 					break;
 				case "determine": matrixes[counter] = determine(matrixes[counter]);
 					break;
@@ -800,29 +809,39 @@ function getOperationArg(matrIndex, matrOptIndex){
 
 function showResult(result){
 
+	//if (document.getElementById("resultado").innerHTML != "") return;
+
 	var res;
 
 	if (typeof result === "number") res = result;
-	else{
-		var x = result.length;
-		var y = result[0].length;
-		var i = 0;
-		var j;
-		var matrixStr = "<table width='" + y * 30 + "'>";
-
-		for(;i < x;i++){
-			matrixStr += "<tr>";
-			for(j = 0;j < y;j++)
-				matrixStr += "<td>" + result[i][j] + "</td>";
-			matrixStr += "</tr>";
-		}
-
-		matrixStr += "</table>";
-		res = matrixStr;
-	}
-	document.getElementById("resultado").innerHTML = res;
+	else
+		res = toTable(result);
+	applyToResult(res);
 
 }
+
+function toTable(result){
+	var x = result.length;
+	var y = result[0].length;
+	var i = 0;
+	var j;
+	var matrixStr = "<table width='" + y * 30 + "'>";
+	for(;i < x;i++){
+		matrixStr += "<tr>";
+		for(j = 0;j < y;j++)
+			matrixStr += "<td>" + result[i][j] + "</td>";
+		matrixStr += "</tr>";
+	}
+	matrixStr += "</table>";
+	return matrixStr;
+}
+
+function applyToResult(result){
+
+	document.getElementById("resultado").innerHTML += result;
+
+}
+
 
 function clearResult(){
 
@@ -833,9 +852,9 @@ function clearResult(){
 </script>
 <style>
 #conteudo { position: relative; }
-#matries-originais { width:33.3%; }
-#igualdade { width:33.3%; position:fixed; top: 100px; left: 350px; text-align:center; }
-#resultado { width:33.3%; position:fixed; top: 80px; right: 100px }
+#matrizes { width:33.3%; position: absolute; float:left }
+#igualdade { width:33.3%; position: absolute; top: 100px; left: 350px; text-align:center; }
+#resultado { width:45%; position: absolute; top: 80px; right: 0px }
 </style>
 </head>
 
@@ -850,11 +869,10 @@ Quantas matrizes voc&ecirc; deseja?
 <input type="text" id="quantas-matrizes" >
 
 <button onclick="buildContainers()">Ok</button>
-
 </div>
 
 <div id="conteudo">
-<div id="matrizes-originais"></div>
+<div id="matrizes"></div>
 <div id="igualdade"><button onclick="calcResult()">&#61;</button></div>
 <div id="resultado"></div>
 </div>
