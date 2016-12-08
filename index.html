@@ -10,7 +10,7 @@
 
 var howMany = 0;
 
-// buildContainers cria as matrizes a serem preenchidas pelo usuario
+// buildContainers, cria as matrizes a serem preenchidas pelo usuario
 function buildContainers(){
 	
 	clearResult();
@@ -46,7 +46,7 @@ function buildContainers(){
 
 }
 
-// setMatrixDimensions seta as dimensoes da matriz a ser preenchida
+// setMatrixDimensions, seta as dimensoes da matriz a ser preenchida
 function setMatrixDimensions(dimensionsElement, matrIndex){
 
 	var x = dimensionsElement.value.split(',')[0];
@@ -65,7 +65,7 @@ function setMatrixDimensions(dimensionsElement, matrIndex){
 
 }
 
-// setOperations cria os campos de operacoes
+// setOperations, cria os campos de operacoes
 function setOperations(howmanyElement, matrIndex){
 	
 	var howmanyOperations = parseInt(howmanyElement.value);
@@ -88,7 +88,7 @@ function setOperations(howmanyElement, matrIndex){
 	
 }
 
-// changedOperation seta campo de dado extra se for necessario
+// changedOperation, seta campo de dado para a operacao se for necessario
 function changedOperation(selectElement, matrIndex, i){
 
 	var optTextfield = "";
@@ -102,7 +102,7 @@ function changedOperation(selectElement, matrIndex, i){
 	
 }
 
-// domToArray pega os dados do DOM e alimenta os vetores
+// domToArray, pega os dados do DOM e alimenta os vetores
 function domToArray(){
 
 	var matrixes = [];
@@ -226,7 +226,7 @@ function scale(A, s){
 
 }
 
-// invert, inverte a matriz A
+// invert, inversa da matriz A
 function invert(A){
 
 	if(determine(A) == 0) alert("imposs&iacute;vel realizar invers&atilde;o");
@@ -260,9 +260,9 @@ function cofactor(A){
 
 }
 
-// _cofactor, calcula o cofator do indice ij
+// _cofactor, calcula o cofator do indice ij da matriz A
 function _cofactor(A, w, z){
-
+console.log("_cofactor");
 	return minor(A, w, z) * ((w + z) % 2 == 0? 1 : -1);
 
 }
@@ -274,7 +274,7 @@ function minor(A, w, z){
 
 }
 
-// minor, devolve a submatriz de A, menos a linha e coluna do indice wz
+// submatrix, devolve a submatriz de A, menos a linha e coluna de indice wz
 function submatrix(A, w, z){
 
 	var x = A.length;
@@ -322,7 +322,7 @@ function transpose(A){
 
 }
 
-// acha o indice de valor mais proximo de 1
+// chioClosestToOne, acha o indice de valor mais proximo de 1 na matriz A
 function chioClosestToOne(A){
 
 	var x = A.length;
@@ -387,7 +387,7 @@ function chioDet(A){
 }
 
 // determine, calcula o determinante de A
-function determine(A){l
+function determine(A){
 
 	return chioDet(A);
 
@@ -427,11 +427,16 @@ function rowEchelonForm(A){
 
 	for(;i < x;i++)
 		for(j = 0;j < y;j++)
-			if (i > j && res[i][j] !== 0 || (res[i][j] == 0 && i == j)){
+			if (i > j && res[i][j] !== 0){
+				res = elementaryOperations(res, i, j, true);				
 				if (isRowEchelonForm(res))
 					return res;
-
-				res = elementaryOperations(res, i, j, true);				
+			}else if(res[i][j] == 0 && i == j){
+				res = switchLines(res, i, j, false);
+				if (isRowEchelonForm(res))
+					return res;
+				i = 0;
+				break;
 			}
 
 	return switchLinesRowEchelonForm(res);
@@ -468,17 +473,17 @@ function isRowEchelonForm(A){
 	var y = A[0].length;
 	var i = 0;
 	var j = 0;
-	var jLeadAbove = 0;
+	var jLeadAbove = -1;
 	var consecutiveZeros;
-	var zeros = getLeadingZeros(A)
+	var zeros = getLeadingZeros(A);
 
-	for(i = 0;i < x - 1;i++){
-		if(zeros[i] > zeros[i + 1]) return false;
-		if(zeros[i] != x)
-			for(j = 0;j < y;j++){
+	for(i = 0;i <= x - 1;i++){
+		if(zeros[i + 1] != null && zeros[i] > zeros[i + 1]) return false;
+		if(zeros[i] != y)
+			for(j = 0;j <= y - 2;j++){
 				if(j == 0 && A[i][j] == 0) consecutiveZeros = true;
 				if(A[i][j] != 0 && j <= jLeadAbove) return false;
-				if(A[i][j] != 0 && consecutiveZeros){
+				if((A[i][j] != 0 && consecutiveZeros) || (j == 0 && A[i][j] != 0)){
 					jLeadAbove = j;
 					consecutiveZeros = false;
 					break;
@@ -538,15 +543,7 @@ function elementaryOperations(A, i, j, ref){
 	var LCMRes;
 	var resijinozeroj;
 
-	if(res[i][j] == 0 && i == j){
-
-		if(res[i][j] == 0 && i == j){
-			res = switchLines(res, i, j, !ref);
-			console.log("expr: ", "switchLines" , "; result: ", JSON.stringify(res), "; i: ", i, "; j: ", j);
-			return res;
-		}
-
-	}else while(res[i][j] || i == j){
+	while(res[i][j]){
 
 		expr = "";
 		
@@ -658,7 +655,8 @@ function partition2(items, items2, left, right) {
 		if (i <= j) {
 			swap(items, i, j);
 			swap(items2, i, j);
-			applyToResult("Troca de linhas " + (i + 1) + " por " + (j + 1) + "</br></br>"
+			if (i != j)
+				applyToResult("Troca de linhas " + (i + 1) + " por " + (j + 1) + "</br></br>"
 					+ "Resultado: </br>" + toTable(items2) + "</br></br>");
 			i++;
 			j--;
@@ -678,7 +676,7 @@ function swap(items, firstIndex, secondIndex){
 
 }
 
-// applyExpressionToRow, aplica expressao a cada valor linha especificada usando eval
+// applyExpressionToRow, aplica expressao a cada valor da linha especificada usando eval
 function applyExpressionToRow(res, i, iNonZero, expr){
 
 	var y = res[0].length;
@@ -688,7 +686,7 @@ function applyExpressionToRow(res, i, iNonZero, expr){
 	for(;j < y;j++)
 		if(res[i][j] || j == y - 1){
 			ev = eval(expr);
-			// GAMBIARRA FEDORENTA com isNaN, que resolve o problema de divisoes por zero e simplifica a vida :-) BJS
+			// GAMBIARRA FEDORENTA com isNaN, que resolve o problema de divisoes por zero e simplifica a vida :-)
 			res[i][j] = isNaN(ev) ? res[i][j] : ev;
 		}
 
@@ -805,7 +803,7 @@ function calcResult(){
 
 		while(matrOptIndex < matrHowmanyOpts){
 			switch(document.getElementById("mat-" + counter + "-opt-" + matrOptIndex).value){
-				case "invert": matrixes[counter] = invert(matrixes[counter]);
+				case "invert": console.log(matrixes[counter]);matrixes[counter] = invert(matrixes[counter]);
 					break;
 				case "transpose": matrixes[counter] = transpose(matrixes[counter]);
 					break;
