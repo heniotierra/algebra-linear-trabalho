@@ -133,7 +133,10 @@ function domToArray(){
 // sum, soma matriz A com matriz B
 function sum(A, B){
 
-	if (A.length != B.length || A[0].length != B[0].length) alert("imposs&iacute;vel realizar adi&ccedil;&atilde;o");
+	if (A.length != B.length || A[0].length != B[0].length){
+		alert("imposs&iacute;vel realizar adi&ccedil;&atilde;o");
+		return [];
+	}
 
 	var x = A.length;
 	var y = A[0].length;
@@ -154,7 +157,10 @@ function sum(A, B){
 // subtract, subtrai B da matriz A
 function subtract(A, B){
 
-	if (A.length != B.length || A[0].length != B[0].length) alert("imposs&iacute;vel realizar subtra&ccedil;&atilde;o");
+	if (A.length != B.length || A[0].length != B[0].length){
+		alert("imposs&iacute;vel realizar subtra&ccedil;&atilde;o");
+		return [];
+	}
 
 	var x = A.length;
 	var y = A[0].length;
@@ -176,7 +182,10 @@ function subtract(A, B){
 // multiply, multiplica a matriz A pela matriz B
 function multiply(A, B){
 
-	if (A[0].length != B.length) alert("imposs&iacute;vel realizar multiplica&ccedil;&atilde;o");
+	if (A[0].length != B.length){
+		alert("imposs&iacute;vel realizar multiplica&ccedil;&atilde;o");
+		return [];
+	}
 
 	var x = A.length;
 	var y = B[0].length;
@@ -230,7 +239,10 @@ function scale(A, s){
 // invert, inversa da matriz A
 function invert(A){
 
-	if(determine(A) == 0) alert("imposs&iacute;vel realizar invers&atilde;o");
+	if(determine(A) == 0) {
+		alert("imposs&iacute;vel realizar invers&atilde;o");
+		return [];
+	}
 
 	return scale(adjugate(A), 1/determine(A));
 
@@ -397,7 +409,10 @@ function determine(A){
 // calcula a potencia de A
 function power(A, p){
 
-	if (p < 1) alert("imposs&iacute;vel realizar potencia&ccedil;&atilde;o");
+	if (p < 1){
+		alert("imposs&iacute;vel realizar potencia&ccedil;&atilde;o");
+		return [];
+	}
 
 	if (p == 1) return A;
 
