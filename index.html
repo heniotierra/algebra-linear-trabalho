@@ -9,6 +9,7 @@
 <script>
 
 var howMany = 0;
+const maxIterations = 1000;
 
 // buildContainers, cria as matrizes a serem preenchidas pelo usuario
 function buildContainers(){
@@ -129,7 +130,7 @@ function domToArray(){
 	
 }
 
-// sum, recebe matriz A e soma com matriz B
+// sum, soma matriz A com matriz B
 function sum(A, B){
 
 	if (A.length != B.length || A[0].length != B[0].length) alert("imposs&iacute;vel realizar adi&ccedil;&atilde;o");
@@ -150,7 +151,7 @@ function sum(A, B){
 
 }
 
-// subtract, recebe matriz A e subtrai dela a matriz B
+// subtract, subtrai B da matriz A
 function subtract(A, B){
 
 	if (A.length != B.length || A[0].length != B[0].length) alert("imposs&iacute;vel realizar subtra&ccedil;&atilde;o");
@@ -172,7 +173,7 @@ function subtract(A, B){
 
 }
 
-// multiply, recebe matriz A e multiplica pela matriz B
+// multiply, multiplica a matriz A pela matriz B
 function multiply(A, B){
 
 	if (A[0].length != B.length) alert("imposs&iacute;vel realizar multiplica&ccedil;&atilde;o");
@@ -206,7 +207,7 @@ function multiply(A, B){
 
 }
 
-// scale, recebe a matriz A e multiplica pelo escalar s
+// scale, multiplica a matriz A pelo escalar s
 function scale(A, s){
 
 	var x = A.length;
@@ -267,7 +268,7 @@ console.log("_cofactor");
 
 }
 
-// minor, calcula o menor da matriz A
+// minor, calcula o menor da matriz A para o indice wz
 function minor(A, w, z){
 
 	return determine(submatrix(A, w, z));
@@ -424,9 +425,10 @@ function rowEchelonForm(A){
 	var i = 0;
 	var j = 0;
 	var res = A;
+	var iteration = 0;
 
 	for(;i < x;i++)
-		for(j = 0;j < y;j++)
+		for(j = 0;j < y;j++){
 			if (i > j && res[i][j] !== 0){
 				res = elementaryOperations(res, i, j, true);				
 				if (isRowEchelonForm(res))
@@ -438,6 +440,11 @@ function rowEchelonForm(A){
 				i = 0;
 				break;
 			}
+			if(++iteration == maxIterations){ 
+				alert("maximo de itera&ccedil;&otilde;es atingido, impossivel resolver sistema"); 
+				return [];
+			}
+		}
 
 	return switchLinesRowEchelonForm(res);
 
@@ -451,16 +458,23 @@ function reducedRowEchelonForm(A){
 	var h;
 	var res = A;
 	var zeros = getLeadingZeros(A);
+	var iteration = 0;
 
 	for(;i < x;i++)
-		if(zeros[i] && zeros[i] < x && !loneInColumn(res, i, zeros[i]))
+		if(zeros[i] && zeros[i] < x && !loneInColumn(res, i, zeros[i])){
 			for(h = zeros[i] - 1;h >= 0;h--){
 				if(isReducedRowEchelonForm(res))
 					return res;
 
 				if(res[h][zeros[i]] && zeros[i] != x)
 					res = elementaryOperations(res, h, zeros[i], false);
+
+				if(++iteration == maxIterations){ 
+					alert("maximo de itera&ccedil;&otilde;es atingido, impossivel resolver sistema"); 
+					return [];
+				}
 			}
+		}
 
 	return res;
 
