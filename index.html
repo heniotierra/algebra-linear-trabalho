@@ -10,6 +10,7 @@
 
 var howMany = 0;
 
+// buildContainers cria as matrizes a serem preenchidas pelo usuario
 function buildContainers(){
 	
 	clearResult();
@@ -45,6 +46,7 @@ function buildContainers(){
 
 }
 
+// setMatrixDimensions seta as dimensoes da matriz a ser preenchida
 function setMatrixDimensions(dimensionsElement, matrIndex){
 
 	var x = dimensionsElement.value.split(',')[0];
@@ -63,6 +65,7 @@ function setMatrixDimensions(dimensionsElement, matrIndex){
 
 }
 
+// setOperations cria os campos de operacoes
 function setOperations(howmanyElement, matrIndex){
 	
 	var howmanyOperations = parseInt(howmanyElement.value);
@@ -85,6 +88,7 @@ function setOperations(howmanyElement, matrIndex){
 	
 }
 
+// changedOperation seta campo de dado extra se for necessario
 function changedOperation(selectElement, matrIndex, i){
 
 	var optTextfield = "";
@@ -98,6 +102,7 @@ function changedOperation(selectElement, matrIndex, i){
 	
 }
 
+// domToArray pega os dados do DOM e alimenta os vetores
 function domToArray(){
 
 	var matrixes = [];
@@ -124,7 +129,10 @@ function domToArray(){
 	
 }
 
+// sum, recebe matriz A e soma com matriz B
 function sum(A, B){
+
+	if (A.length != B.length || A[0].length != B[0].length) alert("imposs&iacute;vel realizar adi&ccedil;&atilde;o");
 
 	var x = A.length;
 	var y = A[0].length;
@@ -142,7 +150,10 @@ function sum(A, B){
 
 }
 
+// subtract, recebe matriz A e subtrai dela a matriz B
 function subtract(A, B){
+
+	if (A.length != B.length || A[0].length != B[0].length) alert("imposs&iacute;vel realizar subtra&ccedil;&atilde;o");
 
 	var x = A.length;
 	var y = A[0].length;
@@ -161,7 +172,10 @@ function subtract(A, B){
 
 }
 
+// multiply, recebe matriz A e multiplica pela matriz B
 function multiply(A, B){
+
+	if (A[0].length != B.length) alert("imposs&iacute;vel realizar multiplica&ccedil;&atilde;o");
 
 	var x = A.length;
 	var y = B[0].length;
@@ -192,6 +206,7 @@ function multiply(A, B){
 
 }
 
+// scale, recebe a matriz A e multiplica pelo escalar s
 function scale(A, s){
 
 	var x = A.length;
@@ -211,20 +226,23 @@ function scale(A, s){
 
 }
 
+// invert, inverte a matriz A
 function invert(A){
 
-	if(determine(A) == 0) return false;
+	if(determine(A) == 0) alert("imposs&iacute;vel realizar invers&atilde;o");
 
 	return scale(adjugate(A), 1/determine(A));
 
 }
 
+// adjugate, matriz adjunta de A
 function adjugate(A){
 
 	return transpose(cofactor(A));
 
 }
 
+// cofactor, matriz de cofatores de A
 function cofactor(A){
 
 	var x = A.length;
@@ -242,18 +260,21 @@ function cofactor(A){
 
 }
 
+// _cofactor, calcula o cofator do indice ij
 function _cofactor(A, w, z){
 
 	return minor(A, w, z) * ((w + z) % 2 == 0? 1 : -1);
 
 }
 
+// minor, calcula o menor da matriz A
 function minor(A, w, z){
 
 	return determine(submatrix(A, w, z));
 
 }
 
+// minor, devolve a submatriz de A, menos a linha e coluna do indice wz
 function submatrix(A, w, z){
 
 	var x = A.length;
@@ -282,6 +303,7 @@ function submatrix(A, w, z){
 
 }
 
+// transpose, transforma linhas em colunas
 function transpose(A){
 
 	var x = A.length;
@@ -300,6 +322,7 @@ function transpose(A){
 
 }
 
+// acha o indice de valor mais proximo de 1
 function chioClosestToOne(A){
 
 	var x = A.length;
@@ -309,7 +332,7 @@ function chioClosestToOne(A){
 
 	for(;i < x;i++)
 		for(j = 0;j < x;j++)
-			if(A[i][j] == 1)
+			if(A[i][j] === 1)
 				return { "i": i, "j": j };
 			else if(A[i][j] != 0 && Math.abs(A[i][j] - 1) < Math.abs(A[closest.i][closest.j] - 1))
 				closest = { "i": i, "j": j };
@@ -318,6 +341,7 @@ function chioClosestToOne(A){
 
 }
 
+// chioGetB, calcula a matriz B de A
 function chioGetB(A, cT1){
 
 	var x = A.length;
@@ -344,6 +368,7 @@ function chioGetB(A, cT1){
 
 }
 
+// chioDet, calcula o determinante pela regra de Chio
 function chioDet(A){
 
 	if (A.length == 1) return A[0][0];
@@ -352,7 +377,7 @@ function chioDet(A){
 	var B = chioGetB(A, closestTo1);
 	var jok;
 
-	if(A[closestTo1.i][closestTo1.j] == 1)
+	if (A[closestTo1.i][closestTo1.j] == 1)
 		jok = ( closestTo1.i + closestTo1.j ) % 2 == 0 ? 1 : -1;
 	else
  		jok = 1;
@@ -361,13 +386,17 @@ function chioDet(A){
 
 }
 
-function determine(A){
+// determine, calcula o determinante de A
+function determine(A){l
 
 	return chioDet(A);
 
 }
 
+// calcula a potencia de A
 function power(A, p){
+
+	if (p < 1) alert("imposs&iacute;vel realizar potencia&ccedil;&atilde;o");
 
 	if (p == 1) return A;
 
@@ -380,12 +409,14 @@ function power(A, p){
 
 }
 
+// gaussJordanElimination, escalona e reduz sistemas lineares
 function gaussJordanElimination(A){
 
 	return reducedRowEchelonForm(rowEchelonForm(A));
 
 }
 
+// rowEchelonForm, escalona sistemas lineares
 function rowEchelonForm(A){
 
 	var x = A.length;
@@ -402,11 +433,12 @@ function rowEchelonForm(A){
 
 				res = elementaryOperations(res, i, j, true);				
 			}
-	
-	return res;
+
+	return switchLinesRowEchelonForm(res);
 
 }
 
+// reducedRowEchelonForm, reduz sistemas lineares escalonados
 function reducedRowEchelonForm(A){
 
 	var x = A.length;
@@ -429,6 +461,7 @@ function reducedRowEchelonForm(A){
 
 }
 
+// isRowEchelonForm, verifica se A esta na forma escalonada
 function isRowEchelonForm(A){
 	
 	var x = A.length;
@@ -458,6 +491,7 @@ function isRowEchelonForm(A){
 	
 }
 
+// isReducedRowEchelonForm, verifica se A esta na forma reduzida
 function isReducedRowEchelonForm(A){
 
 	var x = A.length;
@@ -481,6 +515,7 @@ function isReducedRowEchelonForm(A){
 
 }
 
+// loneInColumn, verifica se o pivo esta sozinho na coluna
 function loneInColumn(A, i, j){
 	
 	var h = 0;
@@ -493,6 +528,7 @@ function loneInColumn(A, i, j){
 
 }
 
+// operacoes elementares
 function elementaryOperations(A, i, j, ref){
 
 	var res = A;
@@ -552,12 +588,14 @@ function elementaryOperations(A, i, j, ref){
 
 }
 
+// switchLinesRowEchelonForm, troca rapida de linhas baseada nos indices dos pivos de cada linha de A
 function switchLinesRowEchelonForm(A){
 	
 	return quickSwitchLines(getLeadingZeros(A), A);
 	
 }
 
+// getLeadingZeros, pega a quantidade de zeros antes do pivo em cada linha de A
 function getLeadingZeros(A){
 
 	var x = A.length;
@@ -578,6 +616,7 @@ function getLeadingZeros(A){
 
 }
 
+// quickSwitchLines, adaptacao de quickSort
 function quickSwitchLines(items, items2, left, right) {
 
     var index;
@@ -601,6 +640,7 @@ function quickSwitchLines(items, items2, left, right) {
 
 }
 
+// partition2, adaptacao de partition do quicksort
 function partition2(items, items2, left, right) {
 
 	var pivot = items[Math.floor((right + left) / 2)];
@@ -629,6 +669,7 @@ function partition2(items, items2, left, right) {
 
 }
 
+// swap, adaptacao de swap do quickSort
 function swap(items, firstIndex, secondIndex){
 
 	var temp = items[firstIndex];
@@ -637,6 +678,7 @@ function swap(items, firstIndex, secondIndex){
 
 }
 
+// applyExpressionToRow, aplica expressao a cada valor linha especificada usando eval
 function applyExpressionToRow(res, i, iNonZero, expr){
 
 	var y = res[0].length;
@@ -659,6 +701,7 @@ function applyExpressionToRow(res, i, iNonZero, expr){
 
 }
 
+// totalFromRow, calcula o total da soma dos elementos da linha i de A
 function totalFromRow(A, i){
 
 	var t = 0;
@@ -672,6 +715,7 @@ function totalFromRow(A, i){
 
 }
 
+// findNonZero, acha o valor nao zero na coluna
 function findNonZero(A, i, j, up){
 
 	var x = A.length;
@@ -697,6 +741,7 @@ function findNonZero(A, i, j, up){
 
 }
 
+// findNonZero, troca de linhas simples
 function switchLines(A, i, j, up){
 
 	var x = A.length;
@@ -729,6 +774,7 @@ function switchLines(A, i, j, up){
 
 }
 
+// GCF, maximo divisor comum
 function GCF(a, b){
 
 	if (b == 0) return a;
@@ -736,12 +782,14 @@ function GCF(a, b){
 
 }
 
+// LCD, minimo multiplo comum
 function LCM(a, b){
 
 	return Math.abs(a * b) / GCF(a, b);
 
 }
 
+// calcResult, calcular resultado, funcao que controla o botao ' = '
 function calcResult(){
 
 	clearResult();
@@ -758,10 +806,6 @@ function calcResult(){
 		while(matrOptIndex < matrHowmanyOpts){
 			switch(document.getElementById("mat-" + counter + "-opt-" + matrOptIndex).value){
 				case "invert": matrixes[counter] = invert(matrixes[counter]);
-					if(matrixes[counter] === false){
-						alert("Impossivel realizar inversao de matriz dada");
-						return;
-					}
 					break;
 				case "transpose": matrixes[counter] = transpose(matrixes[counter]);
 					break;
@@ -801,15 +845,15 @@ function calcResult(){
 
 }
 
+// getOperationArg, pega argumento de operacao
 function getOperationArg(matrIndex, matrOptIndex){
 
 	return document.getElementById("mat-" + matrIndex + "-opt-" + matrOptIndex + "-textfield-field").value;
 
 }
 
+// showResult, mostra resultado
 function showResult(result){
-
-	//if (document.getElementById("resultado").innerHTML != "") return;
 
 	var res;
 
@@ -820,29 +864,31 @@ function showResult(result){
 
 }
 
+// toTable, transforma matriz resultado em tag table
 function toTable(result){
 	var x = result.length;
 	var y = result[0].length;
 	var i = 0;
 	var j;
-	var matrixStr = "<table width='" + y * 30 + "'>";
+	var matrixStr = "<table width='" + y * 30 + "' class='matrix-res'>";
 	for(;i < x;i++){
 		matrixStr += "<tr>";
 		for(j = 0;j < y;j++)
-			matrixStr += "<td>" + result[i][j] + "</td>";
+			matrixStr += "<td class='matrix-res'>" + result[i][j] + "</td>";
 		matrixStr += "</tr>";
 	}
 	matrixStr += "</table>";
 	return matrixStr;
 }
 
+// applyToResult, aplica resultado
 function applyToResult(result){
 
 	document.getElementById("resultado").innerHTML += result;
 
 }
 
-
+// clearResult, limpa resultado
 function clearResult(){
 
 	document.getElementById("resultado").innerHTML = "";
@@ -852,9 +898,10 @@ function clearResult(){
 </script>
 <style>
 #conteudo { position: relative; }
-#matrizes { width:33.3%; position: absolute; float:left }
+#matrizes { width:33.3%; position: absolute; float:left; }
 #igualdade { width:33.3%; position: absolute; top: 100px; left: 350px; text-align:center; }
-#resultado { width:45%; position: absolute; top: 80px; right: 0px }
+#resultado { width:45%; position: absolute; top: 80px; right: 0px; }
+.matrix-res { border: 1px solid black; }
 </style>
 </head>
 
