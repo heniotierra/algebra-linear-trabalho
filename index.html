@@ -5,6 +5,7 @@
 <head>
 
 <title>Matrizes</title>
+<meta name="author" content="H&ecirc;nio Tierra">
 
 <script>
 
@@ -134,7 +135,7 @@ function domToArray(){
 function sum(A, B){
 
 	if (A.length != B.length || A[0].length != B[0].length){
-		alert("imposs&iacute;vel realizar adi&ccedil;&atilde;o");
+		alert("impossível realizar adição");
 		return [];
 	}
 
@@ -158,7 +159,7 @@ function sum(A, B){
 function subtract(A, B){
 
 	if (A.length != B.length || A[0].length != B[0].length){
-		alert("imposs&iacute;vel realizar subtra&ccedil;&atilde;o");
+		alert("impossível realizar subtração");
 		return [];
 	}
 
@@ -183,7 +184,7 @@ function subtract(A, B){
 function multiply(A, B){
 
 	if (A[0].length != B.length){
-		alert("imposs&iacute;vel realizar multiplica&ccedil;&atilde;o");
+		alert("impossível realizar multiplicação");
 		return [];
 	}
 
@@ -240,7 +241,7 @@ function scale(A, s){
 function invert(A){
 
 	if(determine(A) == 0) {
-		alert("imposs&iacute;vel realizar invers&atilde;o");
+		alert("impossível realizar inversão");
 		return [];
 	}
 
@@ -273,9 +274,9 @@ function cofactor(A){
 
 }
 
-// _cofactor, calcula o cofator do indice ij da matriz A
+// _cofactor, calcula o cofator do indice wz da matriz A
 function _cofactor(A, w, z){
-console.log("_cofactor");
+
 	return minor(A, w, z) * ((w + z) % 2 == 0? 1 : -1);
 
 }
@@ -374,7 +375,7 @@ function chioGetB(A, cT1){
 
 			if(typeof B[m] === "undefined") B[m] = [];
 				
-			B[m][n] = A[i][j] - A[i][cT1.j] * A[cT1.i][j];
+			B[m][n] = A[i][j] * (A[i][cT1.j] - A[cT1.i][j]);
 		}
 
 	return B;
@@ -409,14 +410,18 @@ function determine(A){
 // calcula a potencia de A
 function power(A, p){
 
-	if (p < 1){
-		alert("imposs&iacute;vel realizar potencia&ccedil;&atilde;o");
-		return [];
-	}
-
-	if (p == 1) return A;
-
 	var res = A;
+
+	if (p < 0){
+		alert("impossível realizar potenciação");
+		return [];
+	} else if (p == 1) return A;
+	else if (p == 0){
+		for(var i = 0, l = A.length; i < l; i++)
+			for(var j = 0, m = A[i].length; j < m; j++)
+				res[i][j] = 1;
+		return res;		
+	}
 
 	while(p-- > 1)
 		res = multiply(res, A);
@@ -456,7 +461,7 @@ function rowEchelonForm(A){
 				break;
 			}
 			if(++iteration == maxIterations){ 
-				alert("maximo de itera&ccedil;&otilde;es atingido, impossivel resolver sistema"); 
+				alert("máximo de iterações atingido, impossivel resolver sistema"); 
 				return [];
 			}
 		}
@@ -485,7 +490,7 @@ function reducedRowEchelonForm(A){
 					res = elementaryOperations(res, h, zeros[i], false);
 
 				if(++iteration == maxIterations){ 
-					alert("maximo de itera&ccedil;&otilde;es atingido, impossivel resolver sistema"); 
+					alert("máximo de iterações atingido, impossível resolver sistema"); 
 					return [];
 				}
 			}
@@ -715,7 +720,7 @@ function applyExpressionToRow(res, i, iNonZero, expr){
 	for(;j < y;j++)
 		if(res[i][j] || j == y - 1){
 			ev = eval(expr);
-			// GAMBIARRA FEDORENTA com isNaN, que resolve o problema de divisoes por zero e simplifica a vida :-)
+			// GAMBIARRA FEDORENTA com isNaN, que resolve o problema de divisões por zero e simplifica a vida :-)
 			res[i][j] = isNaN(ev) ? res[i][j] : ev;
 		}
 
