@@ -14,18 +14,18 @@ const maxIterations = 1000;
 
 // buildContainers, cria as matrizes a serem preenchidas pelo usuario
 function buildContainers(){
-	
+
 	clearResult();
 
 	howMany = parseInt(document.getElementById("quantas-matrizes").value);
 	var mainContainer = document.getElementById("matrizes");
 	var matrixesContainersStr = "";
 	var counter = 0;
-	
+
 	while(counter < howMany){
 		matrixesContainersStr += "<div id='mat-" + counter + "-cont'>"
 					+"<u>Matriz " + (counter + 1) + "</u></br>"
-					+"<label>i,j: </label><input type='text' maxlength='4' size='4' id='mat-" + counter + "-dimensions' onchange='setMatrixDimensions(this, " + counter + ")'>. "
+					+"<label>Dimens&otilde;es (x,y): </label><input type='text' maxlength='4' size='4' id='mat-" + counter + "-dimensions' onchange='setMatrixDimensions(this, " + counter + ")'>. "
 					+"<label>N de opera&ccedil;&otilde;es: </label>"
 					+"<input type='text' maxlength='4' size='4' id='mat-" + counter + "-howmany-opts' onchange='setOperations(this, " + counter + ")'>."
 					+"<div id='mat-" + counter + "-opts' ></div>"
@@ -39,9 +39,9 @@ function buildContainers(){
 						+"<option value='subtract'>&minus;</option>"
 						+"<option value='multiply'>&times;</option>"
 						+"</select>";
-			
+
 		counter++;
-		
+
 	}
 
 	mainContainer.innerHTML = matrixesContainersStr;
@@ -69,7 +69,7 @@ function setMatrixDimensions(dimensionsElement, matrIndex){
 
 // setOperations, cria os campos de operacoes
 function setOperations(howmanyElement, matrIndex){
-	
+
 	var howmanyOperations = parseInt(howmanyElement.value);
 	var i = 0;
 	var matrixStr = "";
@@ -81,13 +81,14 @@ function setOperations(howmanyElement, matrIndex){
 				+"<option value='transpose'>transposta</option>"
 				+"<option value='scale'>mult. escalar</option>"
 				+"<option value='power'>potencia</option>"
+				+"<option value='gramSchmidt'>ortogonalizacao</option>"
 				+(howMany == 1 ? ("<option value='determine'>determinante</option>"
 				+"<option value='gaussJordanElimination'>sistema linear</option>") : "")
 				+"</select>"
 				+"<div id='mat-" + matrIndex + "-opt-" + i + "-textfield' ></div>";
 
 	document.getElementById("mat-"+matrIndex+"-opts").innerHTML = matrixStr;
-	
+
 }
 
 // changedOperation, seta campo de dado para a operacao se for necessario
@@ -101,7 +102,7 @@ function changedOperation(selectElement, matrIndex, i){
 		optTextfield = "";
 
 	document.getElementById("mat-" + matrIndex + "-opt-" + i + "-textfield").innerHTML = optTextfield;
-	
+
 }
 
 // domToArray, pega os dados do DOM e alimenta os vetores
@@ -110,7 +111,7 @@ function domToArray(){
 	var matrixes = [];
 	var matrix = [];
 	var counter = 0;
-	
+
 	while(counter < howMany){
 		matrix = [];
 		var x = document.getElementById("mat-" + counter + "-dimensions").value.split(',')[0];
@@ -126,9 +127,9 @@ function domToArray(){
 
 		matrixes.push(matrix);
 	}
-	
+
 	return matrixes;
-	
+
 }
 
 // sum, soma matriz A com matriz B
@@ -150,7 +151,7 @@ function sum(A, B){
 		for(j = 0;j < y;j++)
 			res[i][j] = A[i][j] + B[i][j];
 	}
-	
+
 	return res;
 
 }
@@ -173,9 +174,8 @@ function subtract(A, B){
 		res[i] = [];
 		for(j = 0;j < y;j++)
 			res[i][j] = A[i][j] - B[i][j];
-
 	}
-	
+
 	return res;
 
 }
@@ -212,7 +212,7 @@ function multiply(A, B){
 		column = 0;
 		line++;
 	}
-	
+
 	return res;
 
 }
@@ -220,7 +220,7 @@ function multiply(A, B){
 // scale, multiplica a matriz A pelo escalar s
 function scale(A, s){
 
-	var x = A.length;
+    var x = A.length;
 	var y = A[0].length;
 	var i = 0;
 	var j = 0;
@@ -230,9 +230,10 @@ function scale(A, s){
 		res[i] = [];
 		for(j = 0;j < y;j++)
 			res[i][j] = A[i][j] * s;
-
 	}
-	
+
+	//console.log("scale res:", JSON.stringify(A));
+
 	return res;
 
 }
@@ -307,7 +308,7 @@ function submatrix(A, w, z){
 			n = j > z ? j - 1 : j;
 
 			if(typeof res[m] === "undefined") res[m] = [];
-				
+
 			res[m][n] = A[i][j];
 		}
 
@@ -331,7 +332,7 @@ function transpose(A){
 			if (i == 0) res[j] = [];
 			res[j][i] = A[i][j];
 		}
-	
+
 	return res;
 
 }
@@ -350,7 +351,7 @@ function chioClosestToOne(A){
 				return { "i": i, "j": j };
 			else if(A[i][j] != 0 && Math.abs(A[i][j] - 1) < Math.abs(A[closest.i][closest.j] - 1))
 				closest = { "i": i, "j": j };
-	
+
 	return closest;
 
 }
@@ -374,8 +375,8 @@ function chioGetB(A, cT1){
 			n = j > cT1.j ? j - 1 : j;
 
 			if(typeof B[m] === "undefined") B[m] = [];
-				
-			B[m][n] = A[i][j] * (A[i][cT1.j] - A[cT1.i][j]);
+
+			B[m][n] = A[i][j] - (A[i][cT1.j] * A[cT1.i][j]);
 		}
 
 	return B;
@@ -407,25 +408,34 @@ function determine(A){
 
 }
 
+function identity(A){
+
+	var res = [];
+
+	for(var i = 0, l = A.length; i < l; i++){
+	  res[i] = [];
+		for(var j = 0, m = A[i].length; j < m; j++)
+			if(i == j) res[i][j] = 1;
+			else res[i][j] = 0;
+	}
+
+	return res;
+
+}
+
 // calcula a potencia de A
 function power(A, p){
-
-	var res = A;
 
 	if (p < 0){
 		alert("impossível realizar potenciação");
 		return [];
-	} else if (p == 1) return A;
-	else if (p == 0){
-		for(var i = 0, l = A.length; i < l; i++)
-			for(var j = 0, m = A[i].length; j < m; j++)
-				res[i][j] = 1;
-		return res;		
-	}
+	}	else if (p == 1)
+		return A;
+	else if (p == 0)
+		return identity(A);
 
-	while(p-- > 1)
-		res = multiply(res, A);
-	
+	var res = A;
+	while(--p >= 1)	res = multiply(res, A);
 	return res;
 
 }
@@ -450,7 +460,7 @@ function rowEchelonForm(A){
 	for(;i < x;i++)
 		for(j = 0;j < y;j++){
 			if (i > j && res[i][j] !== 0){
-				res = elementaryOperations(res, i, j, true);				
+				res = elementaryOperations(res, i, j, true);
 				if (isRowEchelonForm(res))
 					return res;
 			}else if(res[i][j] == 0 && i == j){
@@ -460,8 +470,8 @@ function rowEchelonForm(A){
 				i = 0;
 				break;
 			}
-			if(++iteration == maxIterations){ 
-				alert("máximo de iterações atingido, impossivel resolver sistema"); 
+			if(++iteration == maxIterations){
+				alert("máximo de iterações atingido, impossivel resolver sistema");
 				return [];
 			}
 		}
@@ -489,8 +499,8 @@ function reducedRowEchelonForm(A){
 				if(res[h][zeros[i]] && zeros[i] != x)
 					res = elementaryOperations(res, h, zeros[i], false);
 
-				if(++iteration == maxIterations){ 
-					alert("máximo de iterações atingido, impossível resolver sistema"); 
+				if(++iteration == maxIterations){
+					alert("máximo de iterações atingido, impossível resolver sistema");
 					return [];
 				}
 			}
@@ -502,7 +512,7 @@ function reducedRowEchelonForm(A){
 
 // isRowEchelonForm, verifica se A esta na forma escalonada
 function isRowEchelonForm(A){
-	
+
 	var x = A.length;
 	var y = A[0].length;
 	var i = 0;
@@ -527,7 +537,7 @@ function isRowEchelonForm(A){
 	}
 
 	return true;
-	
+
 }
 
 // isReducedRowEchelonForm, verifica se A esta na forma reduzida
@@ -556,7 +566,7 @@ function isReducedRowEchelonForm(A){
 
 // loneInColumn, verifica se o pivo esta sozinho na coluna
 function loneInColumn(A, i, j){
-	
+
 	var h = 0;
 	var x = A.length;
 
@@ -580,7 +590,7 @@ function elementaryOperations(A, i, j, ref){
 	while(res[i][j]){
 
 		expr = "";
-		
+
 		GCFRes = GCF(res[i][j], res[iNonZero][j]);
 		LCMRes = Math.abs(res[i][j] * res[iNonZero][j]) / GCFRes;
 		resijinozeroj = Math.abs(res[i][j]/res[iNonZero][j]);
@@ -589,12 +599,12 @@ function elementaryOperations(A, i, j, ref){
 			expr = "res[i][j] + res[iNonZero][j]";
 		else if(res[i][j] - res[iNonZero][j] === 0)
 			expr = "res[i][j] - res[iNonZero][j]";
-		else if(res[i][j] * GCFRes + res[iNonZero][j] === 0 || 
+		else if(res[i][j] * GCFRes + res[iNonZero][j] === 0 ||
 					res[i][j] * GCFRes - res[iNonZero][j] === 0)
-			expr = "res[i][j] * " + GCFRes;			
-		else if(res[i][j] + res[iNonZero][j] * LCMRes === 0) 
+			expr = "res[i][j] * " + GCFRes;
+		else if(res[i][j] + res[iNonZero][j] * LCMRes === 0)
 			expr = "res[i][j] + res[iNonZero][j] * " + LCMRes;
-		else if(res[i][j] - res[iNonZero][j] * LCMRes === 0)      
+		else if(res[i][j] - res[iNonZero][j] * LCMRes === 0)
 			expr = "res[i][j] - res[iNonZero][j] * " + LCMRes;
 		else if(res[i][j] + resijinozeroj * res[iNonZero][j] === 0)
 			expr = "res[i][j] + " + resijinozeroj + " * res[iNonZero][j]";
@@ -614,16 +624,16 @@ function elementaryOperations(A, i, j, ref){
 			return res;
 
 	}
-	
+
 	return res;
 
 }
 
 // switchLinesRowEchelonForm, troca rapida de linhas baseada nos indices dos pivos de cada linha de A
 function switchLinesRowEchelonForm(A){
-	
+
 	return quickSwitchLines(getLeadingZeros(A), A);
-	
+
 }
 
 // getLeadingZeros, pega a quantidade de zeros antes do pivo em cada linha de A
@@ -659,7 +669,7 @@ function quickSwitchLines(items, items2, left, right) {
 
         index = partition2(items, items2, left, right);
 
-        if (left < index - 1) 
+        if (left < index - 1)
             quickSwitchLines(items, items2, left, index - 1);
 
         if (index < right)
@@ -759,7 +769,7 @@ function findNonZero(A, i, j, up){
 				break;
 			}
 		}
-				
+
 	}else{
 		for(++i;i < x;i++){
 			if (A[i][j] != 0){
@@ -788,7 +798,7 @@ function switchLines(A, i, j, up){
 				swap(A, h, i);
 				break;
 			}
-		}				
+		}
 	}else{
 		for(h = i + 1;h < x;h++){
 			if(A[h][j] != 0 && A[i][h] != 0){
@@ -801,7 +811,7 @@ function switchLines(A, i, j, up){
 	if(h != -1 && h != x)
 		applyToResult("Troca de linhas " + (i + 1) + " por " + (h + 1) + "</br></br>"
 					+ "Resultado: </br>" + toTable(A) + "</br></br>");
-	
+
 	return A;
 
 }
@@ -831,26 +841,36 @@ function calcResult(){
 	var matrixes = domToArray();
 
 	while(counter < howMany){
-		
+
 		var matrHowmanyOpts = parseInt(document.getElementById("mat-" + counter + "-howmany-opts").value);
 		var matrOptIndex = 0;
 
 		while(matrOptIndex < matrHowmanyOpts){
 			switch(document.getElementById("mat-" + counter + "-opt-" + matrOptIndex).value){
-				case "invert": console.log(matrixes[counter]);matrixes[counter] = invert(matrixes[counter]);
+				case "invert":
+				  console.log(matrixes[counter]);
+					matrixes[counter] = invert(matrixes[counter]);
 					break;
-				case "transpose": matrixes[counter] = transpose(matrixes[counter]);
+				case "transpose":
+					matrixes[counter] = transpose(matrixes[counter]);
 					break;
-				case "scale": var scaleBy = eval(getOperationArg(counter, matrOptIndex));
+				case "scale":
+					var scaleBy = eval(getOperationArg(counter, matrOptIndex));
 					matrixes[counter] = scale(matrixes[counter], scaleBy);
 					break;
-				case "power": var toThePower = parseInt(getOperationArg(counter, matrOptIndex));
+				case "power":
+					var toThePower = parseInt(getOperationArg(counter, matrOptIndex));
 					matrixes[counter] = power(matrixes[counter], toThePower);
 					break;
-				case "gaussJordanElimination": matrixes[counter] = gaussJordanElimination(matrixes[counter]);
+				case "gaussJordanElimination":
+					matrixes[counter] = gaussJordanElimination(matrixes[counter]);
 					applyToResult("Resultado final: </br>");
 					break;
-				case "determine": matrixes[counter] = determine(matrixes[counter]);
+				case "determine":
+					matrixes[counter] = determine(matrixes[counter]);
+					break;
+				case "gramSchmidt":
+					matrixes[counter] = gramSchmidt(matrixes[counter]);
 					break;
 			}
 			matrOptIndex++;
@@ -863,11 +883,11 @@ function calcResult(){
 
 	while(counter < howMany - 1){
 		switch(document.getElementById("operation" + counter).value){
-			case "sum": res = sum(res,matrixes[counter+1]); 
+			case "sum": res = sum(res,matrixes[counter+1]);
 				break;
-			case "subtract": res = subtract(res,matrixes[counter+1]); 
+			case "subtract": res = subtract(res,matrixes[counter+1]);
 				break;
-			case "multiply": res = multiply(res,matrixes[counter+1]); 
+			case "multiply": res = multiply(res,matrixes[counter+1]);
 				break;
 		}
 		counter++;
@@ -884,33 +904,114 @@ function getOperationArg(matrIndex, matrOptIndex){
 
 }
 
+function _vectorFromMatrix(A, j){
+
+    var l = A.length;
+    var res = [];
+    
+    for(var i = 0; i < l; i++){
+
+        if(typeof res[i] === "undefined") res[i] = [];
+        res[i][0] = A[i][j];
+    
+    }
+
+    return res;
+
+}
+
+function _matrixFromVectors(){
+
+    //console.log("arguments:", JSON.stringify(arguments));
+    var l = arguments[0].length;
+    var res = [];
+    for(var i = 0; i < l; i++){
+        for(var j = 0; j < l; j++){
+            if(typeof res[j] == "undefined") res[j] = [];
+            res[j][i] = arguments[i][j][0];
+        }
+    }
+    
+    return res;
+
+}
+
+// gramSchmidt, ortogonaliza os vetores pelo metodo de gram-schmidt
+function gramSchmidt(V){
+
+    var i = 0;
+    var l = V.length;
+    var r = [];
+    var res = [];
+
+    for(var i = 0; i < l; i++)
+        res[i] = _vectorFromMatrix(V, i);
+    //console.log("vectors from matrix", JSON.stringify(res));
+    
+    i = 0;
+    while(i < l){
+
+        r = res[i];
+        console.log("i",i);
+        for(var j = i-1; j >= 0; j--){
+            console.log("i", i, "res[i]", JSON.stringify(res[i]), "j", j, "res[j]", JSON.stringify(res[j]));
+            r = subtract(r, _calcw(res[i], res[j]));
+        }
+        res[i++] = r;
+
+    }
+
+    //console.log(JSON.stringify(res));
+    return _matrixFromVectors.apply(this, res);
+
+}
+
+function _calcw(v1, v2){
+
+	var l = v1.length;
+	var n = 0;
+	var d = 0;
+    var nd;
+	for(var i = 0; i < l; i++){
+        n += v1[i][0] * v2[i][0];
+		d += v2[i][0] * v2[i][0];
+	}
+    nd = d == 0? 0 : n/d;
+    console.log("n: " + n, " d: " + d);
+    console.log("v2: "+ JSON.stringify(v2), "n/d: "+ nd, "w: " + JSON.stringify(scale(v2, nd)));
+	return scale(v2, nd);
+
+}
+
 // showResult, mostra resultado
 function showResult(result){
 
 	var res;
 
 	if (typeof result === "number") res = result;
-	else
-		res = toTable(result);
+	else res = toTable(result);
 	applyToResult(res);
 
 }
 
 // toTable, transforma matriz resultado em tag table
 function toTable(result){
+
 	var x = result.length;
 	var y = result[0].length;
 	var i = 0;
 	var j;
 	var matrixStr = "<table width='" + y * 30 + "' class='matrix-res'>";
+
 	for(;i < x;i++){
 		matrixStr += "<tr>";
-		for(j = 0;j < y;j++)
-			matrixStr += "<td class='matrix-res'>" + result[i][j] + "</td>";
+		for(j = 0;j < y;j++) matrixStr += "<td class='matrix-res'>" + result[i][j] + "</td>";
 		matrixStr += "</tr>";
 	}
 	matrixStr += "</table>";
+
 	return matrixStr;
+
 }
 
 // applyToResult, aplica resultado
@@ -943,7 +1044,7 @@ function clearResult(){
 
 <div id="menu">
 
-Quantas matrizes voc&ecirc; deseja?
+Quantas matrizes voc&ecirc; deseja utilizar?
 
 <input type="text" id="quantas-matrizes" >
 
